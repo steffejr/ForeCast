@@ -34,6 +34,7 @@ class JasonStock():
     AllData = []
     os.chdir(Exh)
     def __init__(self):
+        print "Hello World"        
         self.PrintExh()
         self.GetStockList()
         #self.LoadStocks()
@@ -46,7 +47,8 @@ class JasonStock():
         #self.CreateDateArray(400)
         #self.CreateOpenArray()
         #self.CreateDateArray(100)
-        self.CreateTotalDataArray(400)
+        #self.CreateTotalDataArray(400)
+        
         
     def CheckStockInList(self,StockTicker):
         flag = False
@@ -76,6 +78,7 @@ class JasonStock():
                 if CurrentLatestDate > LatestDate:  
          #           print "TRUE"
                     LatestDate = CurrentLatestDate
+                    print LatestDate
          #           print self.StockList[i]+' '+str(CurrentLatestDate)
         self.LatestDate = LatestDate    
 
@@ -273,7 +276,7 @@ class JasonStock():
                 if self.AllData[index][0][0] == self.LatestDate:
                     self.Dates = []                    
                     for i in range(0,NDays,1):
-                        self.Dates.append(self.AllData[0][i][0])
+                        self.Dates.append(self.AllData[index][i][0])
                     #self.Dates = self.AllData[index].date[0:NDays]
                     flag = False
                 else:
@@ -335,9 +338,9 @@ class JasonStock():
         
         now=datetime.datetime.now()
         DateStr = str(now.month).zfill(2)+'_'+str(now.day).zfill(2)+'_'+str(now.year)+'_'+str(now.hour).zfill(2)+str(now.minute).zfill(2)
-        FileName = self.Exh+'_'+str(self.NStocks)+'Stocks_'+DateStr+'.mat'
+        FileName = self.Exh+'_'+str(self.NStocks)+'Stocks_'+str(NDays)+'Days'+DateStr+'.mat'
         OutFile=os.path.join(self.StockDir,FileName)
-        sio.savemat(OutFile,{'StockList':StockList,'index':index,'dates':DateArray,'close':self.CloseData,'open':self.OpenData,'volume':self.VolumeData,'high':self.HighData,'low':self.LowData})
+        sio.savemat(OutFile,{'StockList':StockList,'index':index,'dates':DateArray,'StockClose':self.CloseData,'StockOpen':self.OpenData,'StockVolume':self.VolumeData,'StockHigh':self.HighData,'StockLow':self.LowData})
         
 
         
