@@ -12,16 +12,18 @@ TotalShares = zeros(NStock,NLB);
 TotalTransactions = zeros(NStock,NLB);
 for i = 1:NStock
     for k = NLB:-1:1
-        BuyFlag = 1;
-        SellFlag = 0;
+        BuyFlag = 1; % Ready to Buy
+        SellFlag = 0; % NOT Ready to Sell
         TotalValue(i,k) = Money;
         for j = 1:NTime - (LookBackRange(k) + 1)
            
             currentData = sClose(j:j+LookBackRange(k)-1,i);
             lowPTILE = prctile(currentData,5);
             highPTILE = prctile(currentData,95);
+            medianPTILE=prctile(currentData,50);
            
-            if (sClose(j) > highPTILE) & SellFlag
+            %if (sClose(j) > highPTILE) & SellFlag
+            if (sClose(j) > medianPTILE)  &&  SellFlag
                 % Sell
                 BuyFlag = 1;
                 SellFlag = 0;

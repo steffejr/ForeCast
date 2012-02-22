@@ -14,7 +14,8 @@ TotalValue = zeros(NStock,NLB);
 TotalShares = zeros(NStock,NLB);
 TotalTransactions = zeros(NStock,NLB);
 ActionBool=zeros(NTime,NStock); % boolean flag to find out whether some trading takes place, for realism computation
-for i = 1:NStock
+%%
+for i = 1:1%NStock
     for k = NLB:-1:1
         
                 
@@ -29,50 +30,61 @@ for i = 1:NStock
             highPTILE = prctile(currentData,90);
             medianPTILE=prctile(currentData,50);
            
-            if (sClose(j,i) > highPTILE) && (SellFlag==0 && BuyFlag==0)
-                    % Sell to open
-                    
-                    if TotalShares(i,k)>0   %% make sure first ever opening cannot be SELLING, since no shares are owned yet
-                    
-                        SellFlag = 1;
-                        TotalValue(i,k) = TotalValue(i,k) + TotalShares(i,k)*sClose(j,i) - TransactionCost;
-                        TotalTransactions(i,k) = TotalTransactions(i,k) + TransactionCost;
-                        TotalShares(i,k) = 0;
-                        ActionBool(j,i)=1;  
-                    
-                    end
+            % This condition should never be met because you need to but
+            % before you can sell
+%             if (sClose(j,i) > highPTILE) && (SellFlag==0 && BuyFlag==0)
+%                 
+%                     % Sell to open
+%                     fprintf(1,'Sell to open\n')
+%                     if TotalShares(i,k)>0   %% make sure first ever opening cannot be SELLING, since no shares are owned yet
+%                     
+%                         SellFlag = 1;
+%                         TotalValue(i,k) = TotalValue(i,k) + TotalShares(i,k)*sClose(j,i) - TransactionCost;
+%                         TotalTransactions(i,k) = TotalTransactions(i,k) + TransactionCost;
+%                         TotalShares(i,k) = 0;
+%                         ActionBool(j,i)=1;  
+%                     
+%                     end
                
-            elseif (sClose(j) < lowPTILE) && (SellFlag==0 && BuyFlag==0)
+            if (sClose(j) < lowPTILE) && (SellFlag==0 && BuyFlag==0)
+                % Price is too low so buy.
                     % Buy to open
                     
                     if sClose(j,i)~=0   %%% make sure price is not zero
                         BuyFlag = 1;
                         TotalShares(i,k) = floor( (TotalValue(i,k) - TransactionCost)/sClose(j,i) );  % rounded down for realism
-                        TotalValue(i,k) = TotalValue(i,k)-TotalShares(i,k)*sClose(j,i) -TransactionCost;
+                        % The transaction cost is already accounted for in
+                        % the total number of shares
+                        % TotalValue(i,k) = TotalValue(i,k)-TotalShares(i,k)*sClose(j,i) -TransactionCost;
+                        TotalValue(i,k) = TotalValue(i,k)-TotalShares(i,k)*sClose(j,i);
                         TotalTransactions(i,k) = TotalTransactions(i,k) + TransactionCost;
                         ActionBool(j,i)=1;
+                        fprintf(1,'Buy %d shares at $%0.2f, for $%0.2f\n',TotalShares(i,k),sClose(j,i),TotalShares(i,k)*sClose(j,i));
                     end
                     
+                    
               elseif (sClose(j) > medianPTILE)  &&  BuyFlag
+                  % Price has returned to the median, sell
                     % Sell to close
                     SellFlag = 0;
                     BuyFlag = 0;
                     TotalValue(i,k) = TotalValue(i,k) + TotalShares(i,k)*sClose(j,i) - TransactionCost;
                     TotalShares(i,k) = 0 ;
                     TotalTransactions(i,k) = TotalTransactions(i,k) + TransactionCost;
-                    ActionBool(j,i)=1;
+                    ActionBool(j,i)=1;  
+                    fprintf(1,'Sell %d shares at $%0.2f, for $0.2f\n,',TotalShares(i,k),sClose(j,i),TotalShares(i,k)*sClose(j,i) - TransactionCost);
               
-            elseif (sClose(j) < medianPTILE)  &&  SellFlag
-                    % Buy to close
-                    if sClose(j,i)~=0
-                        BuyFlag = 0;
-                        SellFlag = 0;
-                        TotalShares(i,k) = floor( (TotalValue(i,k) - TransactionCost)/sClose(j,i) );
-                        TotalValue(i,k) = TotalValue(i,k)-TotalShares(i,k)*sClose(j,i) -TransactionCost;
-                        TotalTransactions(i,k) = TotalTransactions(i,k) + TransactionCost;
-                        ActionBool(j,i)=1;
-                    end
-                
+%             elseif (sClose(j) < medianPTILE)  &&  SellFlag
+%                     % Buy to close
+%                     if sClose(j,i)~=0
+%                         BuyFlag = 0;
+%                         SellFlag = 0;
+%                         TotalShares(i,k) = floor( (TotalValue(i,k) - TransactionCost)/sClose(j,i) );
+%                         TotalValue(i,k) = TotalValue(i,k)-TotalShares(i,k)*sClose(j,i) -TransactionCost;
+%                         TotalTransactions(i,k) = TotalTransactions(i,k) + TransactionCost;
+%                         ActionBool(j,i)=1;
+%                     end
+%                 
             end
             
                        
